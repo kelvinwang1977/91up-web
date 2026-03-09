@@ -1,10 +1,23 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 // Cloud Run 位於 Google 的 Load Balancer 後方，必須設定 trust proxy 才能取得真實的 req.ip
 app.set('trust proxy', true);
+
+// 設置 Rate Limiting：限制每個 IP 在 15 分鐘內最多只能發送 100 個請求
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 分鐘
+  max: 100, // 限制每個 IP 100 個請求
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true, // 回傳 `RateLimit-*` 標頭
+  legacyHeaders: false, // 停用 `X-RateLimit-*` 標頭
+});
+
+// 將 rate limiter 套用到所有請求
+app.use(limiter);
 
 const __dirname = path.resolve();
 const DIST_DIR = path.join(__dirname, 'dist');
@@ -13,6 +26,7 @@ const DIST_DIR = path.join(__dirname, 'dist');
 const blockedPathRegex = [
   /\.php$/i, 
   /^\/wp-/i, 
+  /\/wp-includes\//i,
   /^\/xmlrpc\.php$/i, 
   /^\/admin/i, 
   /\/wp-content\//i,
