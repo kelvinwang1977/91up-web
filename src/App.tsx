@@ -1,117 +1,192 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Rocket, 
-  Brain, 
-  Check, 
-  Mic, 
-  Bot, 
-  ArrowRight, 
-  Menu, 
-  X,
+import {useState} from 'react';
+import {AnimatePresence, motion} from 'motion/react';
+import {
+  Bot,
+  Brain,
+  Briefcase,
+  Check,
   Clock,
-  Zap,
   FileText,
-  PenTool,
-  MessageSquare,
-  Sparkles,
   Headphones,
-  Palette,
-  Briefcase
+  Menu,
+  MessageSquare,
+  PenTool,
+  Rocket,
+  Sparkles,
+  X,
+  Zap,
 } from 'lucide-react';
+
+type SectionId = 'intro' | 'scenarios' | 'communication';
+
+const menuItems: Array<{id: SectionId; label: string}> = [
+  {id: 'intro', label: '腦袋升級'},
+  {id: 'scenarios', label: '實戰演練'},
+  {id: 'communication', label: '溝通心法'},
+];
+
+const scenarioCards = [
+  {
+    icon: Headphones,
+    badge: 'NotebookLM',
+    badgeClassName: 'text-orange-600',
+    panelClassName: 'bg-orange-100',
+    iconClassName: 'text-orange-400',
+    title: '快速讀懂大量資料',
+    description: '老闆丟來 100 頁 PDF 或一場長會議，要你立刻整理重點時，先交給 NotebookLM。',
+    points: [
+      '一鍵產出摘要、FAQ 與重點追問方向。',
+      '可把多份文件一起丟進去，比對差異與風險。',
+    ],
+  },
+  {
+    icon: PenTool,
+    badge: 'Gemini Canvas',
+    badgeClassName: 'text-blue-600',
+    panelClassName: 'bg-blue-100',
+    iconClassName: 'text-blue-400',
+    title: '把草稿變成正式內容',
+    description: '拒絕信、週報、活動文案、會議邀請，先寫出雛形，再讓 Gemini 協助潤飾。',
+    points: [
+      '左邊下指令，右邊即時看到內容成形。',
+      '可指定語氣、長度、對象與格式，減少來回修改。',
+    ],
+  },
+  {
+    icon: Bot,
+    badge: 'Gemini Gems',
+    badgeClassName: 'text-green-600',
+    panelClassName: 'bg-green-100',
+    iconClassName: 'text-green-400',
+    title: '建立自己的專屬助理',
+    description: '把常見流程包成固定角色，像是會議整理員、客服助手、內容編修員。',
+    points: [
+      '固定輸出格式，降低每次重講需求的成本。',
+      '圖片、白板、表格都能轉成可編輯資料。',
+    ],
+  },
+];
+
+const communicationCards = [
+  {
+    marker: '#',
+    title: '用結構化方式發問',
+    description: '先講背景，再給素材，最後說清楚目標與輸出格式，答案品質會直接提升。',
+  },
+  {
+    marker: '4',
+    title: '套用 4 模組框架',
+    description: 'Context、Specifics、Goal、Format。讓 AI 知道你是誰、要它做什麼、最後要長什麼樣子。',
+  },
+  {
+    marker: 'S',
+    title: '把好用指令留下來',
+    description: '把試出來的 prompt 存到 Notion、文件或 Gems，下次直接複用，不要每次重來。',
+  },
+];
+
+function LineButton({className = ''}: {className?: string}) {
+  return (
+    <a
+      href="https://page.line.me/91up"
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center gap-2 rounded-full border-2 border-[#06C755] bg-[#06C755] px-5 py-2 text-sm font-bold text-white shadow-md shadow-green-100 transition hover:bg-[#05b34c] active:scale-95 ${className}`}
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 shrink-0">
+        <path d="M21.16 8.56C20.73 4.47 16.92 1.5 12.34 1.5 7.02 1.5 2.7 5.4 2.7 10.22c0 4.3 3.38 7.96 8.03 8.61.63.09.89.26.89.66 0 .3-.11.75-.43 1.83-.13.46-.6 1.8-.73 2.18-.21.62.3.96.81.53.53-.45 4.3-4.04 5.86-5.78 2.75-1.9 4.36-4.57 4.03-9.69zM8.3 11.7c-.24 0-.44-.2-.44-.44V8.76c0-.24.2-.44.44-.44.24 0 .44.2.44.44v2.5c0 .24-.2.44-.44.44zm2.44 0c-.24 0-.44-.2-.44-.44V8.76c0-.24.2-.44.44-.44.24 0 .44.2.44.44v2.5c0 .24-.2.44-.44.44zm3.62-2.5c0-.24-.2-.44-.44-.44h-1.8c-.24 0-.44.2-.44.44v2.5c0 .24.2.44.44.44.24 0 .44-.2.44-.44V11.2h1.36c.24 0 .44-.2.44-.44s-.2-.44-.44-.44h-1.36V9.64h1.36c.24 0 .44-.2.44-.44zm3.62 0c0-.24-.2-.44-.44-.44h-1.8c-.24 0-.44.2-.44.44v2.5c0 .24.2.44.44.44h1.8c.24 0 .44-.2.44-.44s-.2-.44-.44-.44h-1.36V10.8h1.36c.24 0 .44-.2.44-.44s-.2-.44-.44-.44h-1.36V9.64h1.36c.24 0 .44-.2.44-.44z" />
+      </svg>
+      加入官方 LINE
+    </a>
+  );
+}
 
 export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id: SectionId) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({behavior: 'smooth'});
       setIsMobileMenuOpen(false);
     }
   };
 
   const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.4, duration: 0.8 } }
+    hidden: {opacity: 0, y: 30},
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {type: 'spring', bounce: 0.35, duration: 0.8},
+    },
   };
 
   const staggerContainer = {
-    hidden: { opacity: 0 },
+    hidden: {opacity: 0},
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.15
-      }
-    }
+      transition: {staggerChildren: 0.12},
+    },
   };
-
-  const popIn = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 200, damping: 10 } }
-  };
-
-  const LineButton = ({ className = "" }: { className?: string }) => (
-    <a 
-      href="https://page.line.me/91up" 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className={`px-5 py-2 bg-[#06C755] text-white text-sm font-bold rounded-full hover:bg-[#05b34c] transition shadow-md shadow-green-100 active:scale-95 duration-200 flex items-center gap-2 ${className}`}
-    >
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0">
-        <path d="M21.16 8.56C20.73 4.47 16.92 1.5 12.34 1.5 7.02 1.5 2.7 5.4 2.7 10.22c0 4.3 3.38 7.96 8.03 8.61.63.09.89.26.89.66 0 .3-.11.75-.43 1.83-.13.46-.6 1.8-.73 2.18-.21.62.3.96.81.53.53-.45 4.3-4.04 5.86-5.78 2.75-1.9 4.36-4.57 4.03-9.69zM8.3 11.7c-.24 0-.44-.2-.44-.44V8.76c0-.24.2-.44.44-.44.24 0 .44.2.44.44v2.5c0 .24-.2.44-.44.44zm2.44 0c-.24 0-.44-.2-.44-.44V8.76c0-.24.2-.44.44-.44.24 0 .44.2.44.44v2.5c0 .24-.2.44-.44.44zm3.62-2.5c0-.24-.2-.44-.44-.44h-1.8c-.24 0-.44.2-.44.44v2.5c0 .24.2.44.44.44.24 0 .44-.2.44-.44V11.2h1.36c.24 0 .44-.2.44-.44s-.2-.44-.44-.44h-1.36V9.64h1.36c.24 0 .44-.2.44-.44zm3.62 0c0-.24-.2-.44-.44-.44h-1.8c-.24 0-.44.2-.44.44v2.5c0 .24.2.44.44.44h1.8c.24 0 .44-.2.44-.44s-.2-.44-.44-.44h-1.36V10.8h1.36c.24 0 .44-.2.44-.44s-.2-.44-.44-.44h-1.36V9.64h1.36c.24 0 .44-.2.44-.44z"/>
-      </svg>
-      立即諮詢官方LINE
-    </a>
-  );
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-slate-800 font-sans selection:bg-yellow-200 selection:text-slate-900 overflow-x-hidden">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-2 border-slate-100">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="relative w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
-              <Zap className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+    <div className="min-h-screen overflow-x-hidden bg-[#FDFDFD] font-sans text-slate-800 selection:bg-yellow-200 selection:text-slate-900">
+      <nav className="sticky top-0 z-50 border-b-2 border-slate-100 bg-white/90 backdrop-blur-md">
+        <div className="container mx-auto flex h-20 items-center justify-between px-6">
+          <button
+            type="button"
+            className="group flex items-center gap-3"
+            onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] transition-transform duration-300 group-hover:rotate-12">
+              <Zap className="h-6 w-6 fill-yellow-400 text-yellow-400" />
             </div>
-            <span className="font-black text-slate-900 text-xl tracking-tight">AI 職場外掛</span>
-          </div>
+            <span className="text-xl font-black tracking-tight text-slate-900">AI 職場外掛</span>
+          </button>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex gap-8 text-base font-bold text-slate-600 items-center">
-            <button onClick={() => scrollToSection('intro')} className="hover:text-blue-600 transition hover:-translate-y-0.5">腦袋升級</button>
-            <button onClick={() => scrollToSection('scenarios')} className="hover:text-blue-600 transition hover:-translate-y-0.5">實戰演練</button>
-            <button onClick={() => scrollToSection('communication')} className="hover:text-blue-600 transition hover:-translate-y-0.5">溝通心法</button>
+          <div className="hidden items-center gap-8 text-base font-bold text-slate-600 md:flex">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => scrollToSection(item.id)}
+                className="transition hover:-translate-y-0.5 hover:text-blue-600"
+              >
+                {item.label}
+              </button>
+            ))}
             <LineButton className="ml-4 hover:scale-105" />
           </div>
 
-          {/* Mobile Menu Button */}
-          <button className="md:hidden text-slate-900 p-2 bg-slate-100 rounded-lg" onClick={toggleMobileMenu}>
+          <button
+            type="button"
+            className="rounded-lg bg-slate-100 p-2 text-slate-900 md:hidden"
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+          >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
-        {/* Mobile Menu Dropdown */}
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <motion.div 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="md:hidden bg-white border-b-2 border-slate-100 overflow-hidden shadow-xl"
+            <motion.div
+              initial={{height: 0, opacity: 0}}
+              animate={{height: 'auto', opacity: 1}}
+              exit={{height: 0, opacity: 0}}
+              className="overflow-hidden border-b-2 border-slate-100 bg-white shadow-xl md:hidden"
             >
-              <div className="flex flex-col p-6 space-y-4 font-bold text-slate-600">
-                <button onClick={() => scrollToSection('intro')} className="text-left py-3 border-b border-slate-100">腦袋升級</button>
-                <button onClick={() => scrollToSection('scenarios')} className="text-left py-3 border-b border-slate-100">實戰演練</button>
-                <button onClick={() => scrollToSection('communication')} className="text-left py-3 border-b border-slate-100">溝通心法</button>
-                <div className="pt-2 flex justify-center">
+              <div className="flex flex-col space-y-4 p-6 font-bold text-slate-600">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => scrollToSection(item.id)}
+                    className="border-b border-slate-100 py-3 text-left"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                <div className="pt-2">
                   <LineButton className="w-full justify-center py-3 text-base" />
                 </div>
               </div>
@@ -120,117 +195,129 @@ export default function App() {
         </AnimatePresence>
       </nav>
 
-      {/* Hero Section */}
-      <header className="relative pt-20 pb-32 overflow-hidden">
-        {/* Decorative Background Elements */}
-        <div className="absolute top-20 right-0 w-64 h-64 bg-yellow-100 rounded-full blur-3xl opacity-60 -z-10 animate-pulse"></div>
-        <div className="absolute bottom-0 left-10 w-72 h-72 bg-blue-100 rounded-full blur-3xl opacity-60 -z-10"></div>
-        
-        <div className="container mx-auto px-6 text-center relative z-10">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-          >
-            <motion.div 
-              className="inline-flex items-center gap-2 px-5 py-2 mb-8 text-sm font-black tracking-wide text-blue-700 uppercase bg-blue-50 rounded-full border-2 border-blue-100 shadow-sm"
-              whileHover={{ scale: 1.05 }}
+      <header className="relative overflow-hidden pb-32 pt-20">
+        <div className="absolute right-0 top-20 -z-10 h-64 w-64 rounded-full bg-yellow-100 opacity-60 blur-3xl" />
+        <div className="absolute bottom-0 left-10 -z-10 h-72 w-72 rounded-full bg-blue-100 opacity-60 blur-3xl" />
+
+        <div className="container relative z-10 mx-auto px-6 text-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{once: true}} variants={fadeInUp}>
+            <motion.div
+              className="mb-8 inline-flex items-center gap-2 rounded-full border-2 border-blue-100 bg-blue-50 px-5 py-2 text-sm font-black uppercase tracking-wide text-blue-700 shadow-sm"
+              whileHover={{scale: 1.05}}
             >
-              <Clock className="w-4 h-4" />
-              <span>6 小時打造你的「準時下班」神隊友</span>
+              <Clock className="h-4 w-4" />
+              <span>6 小時打造你的準時下班神隊友</span>
             </motion.div>
-            
-            <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 leading-tight tracking-tight">
-              AI 職場外掛 <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">Google Gemini</span> & <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500">NotebookLM</span> 全攻略
+
+            <h1 className="mb-8 text-5xl font-black leading-tight tracking-tight text-slate-900 md:text-7xl">
+              AI 職場外掛
+              <br className="hidden md:block" />
+              用 <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Google Gemini</span>
+              {' '}與{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">NotebookLM</span>
+              提升工作效率
             </h1>
-            
-            <p className="max-w-2xl mx-auto text-xl text-slate-600 mb-12 leading-relaxed font-medium">
-              告別無效加班！讓 AI 幫你讀報告、寫會議記錄、做決策。<br/>
-              你只需要做<span className="bg-yellow-200 px-1 mx-1 rounded transform -rotate-1 inline-block border border-yellow-300 text-slate-900 font-bold">下決定</span>的那個人。
+
+            <p className="mx-auto mb-12 max-w-3xl text-xl font-medium leading-relaxed text-slate-600">
+              把 AI 從聊天玩具，變成你每天真的會用到的工作助手。
+              你負責做判斷，AI 幫你整理、起稿、摘要、比對與重組資訊。
             </p>
-            
-            <div className="flex flex-col sm:flex-row justify-center gap-6 items-center">
-              <motion.button 
+
+            <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
+              <motion.button
+                type="button"
                 onClick={() => scrollToSection('scenarios')}
-                whileHover={{ scale: 1.05, rotate: -1 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all border-2 border-slate-900 flex items-center gap-2"
+                whileHover={{scale: 1.05, rotate: -1}}
+                whileTap={{scale: 0.95}}
+                className="flex items-center gap-2 rounded-2xl border-2 border-slate-900 bg-slate-900 px-8 py-4 font-bold text-white shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]"
               >
-                <Rocket className="w-5 h-5" />
-                開始實戰演練
+                <Rocket className="h-5 w-5" />
+                看實戰案例
               </motion.button>
-              <LineButton className="py-4 px-8 text-base shadow-[6px_6px_0px_0px_rgba(6,199,85,0.3)] hover:shadow-[2px_2px_0px_0px_rgba(6,199,85,0.3)] hover:translate-x-[2px] hover:translate-y-[2px] border-2 border-[#06C755]" />
+              <LineButton className="border-[#06C755] px-8 py-4 text-base shadow-[6px_6px_0px_0px_rgba(6,199,85,0.3)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(6,199,85,0.3)]" />
             </div>
           </motion.div>
         </div>
       </header>
 
-      {/* Part 1: Mindset Upgrade */}
-      <section id="intro" className="py-24 bg-white relative border-y-2 border-slate-100">
+      <section id="intro" className="relative border-y-2 border-slate-100 bg-white py-24">
         <div className="container mx-auto px-6">
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={{once: true}}
             variants={fadeInUp}
-            className="text-center mb-20"
+            className="mb-20 text-center"
           >
-            <div className="inline-block p-3 bg-blue-100 rounded-2xl mb-4 rotate-3">
-              <Brain className="w-8 h-8 text-blue-600" />
+            <div className="mb-4 inline-block rotate-3 rounded-2xl bg-blue-100 p-3">
+              <Brain className="h-8 w-8 text-blue-600" />
             </div>
-            <h2 className="text-4xl font-black text-slate-900 mb-4">第一部分：腦袋升級</h2>
-            <p className="text-xl text-slate-500 font-bold">別再把 AI 當搜尋引擎！它是你的全能顧問。</p>
+            <h2 className="mb-4 text-4xl font-black text-slate-900">第一部分：腦袋升級</h2>
+            <p className="text-xl font-bold text-slate-500">別再把 AI 當搜尋引擎，它更像是你的顧問、助理與整理師。</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <motion.div 
-              variants={popIn}
+          <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
+            <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
-              className="bg-slate-50 p-8 rounded-[2rem] border-4 border-slate-100 relative overflow-hidden group hover:border-blue-200 transition-colors"
+              viewport={{once: true}}
+              variants={fadeInUp}
+              className="group relative overflow-hidden rounded-[2rem] border-4 border-slate-100 bg-slate-50 p-8 transition-colors hover:border-blue-200"
             >
-              <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-4 py-2 rounded-bl-2xl font-bold text-sm">痛點直擊</div>
-              <h3 className="text-2xl font-bold mb-6 mt-2">為什麼我的 AI 給的答案都很廢？</h3>
+              <div className="absolute right-0 top-0 rounded-bl-2xl bg-red-100 px-4 py-2 text-sm font-bold text-red-600">
+                常見誤區
+              </div>
+              <h3 className="mb-6 mt-2 text-2xl font-bold">不是把工作丟給 AI，而是把低價值流程交給它</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center shrink-0 mt-1 font-bold">!</div>
-                  <p className="text-slate-600">全球只有 5% 的人用 AI 寫程式，卻有近 30% 的人把它當成「生活與決策顧問」。</p>
+                  <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 font-bold text-red-500">
+                    !
+                  </div>
+                  <p className="text-slate-600">
+                    白屏或成果差，通常不是 AI 不行，而是輸入太模糊、任務拆解不清楚。
+                  </p>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-500 flex items-center justify-center shrink-0 mt-1 font-bold">✓</div>
-                  <p className="text-slate-600 font-bold">職場最聰明的用法：你當導演，AI 當剪輯師。</p>
+                  <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 font-bold text-green-500">
+                    ✓
+                  </div>
+                  <p className="font-bold text-slate-600">
+                    最有效的用法是：你定方向與判斷，AI 負責整理、改寫、提案與初稿。
+                  </p>
                 </li>
               </ul>
             </motion.div>
 
-            <motion.div 
-              variants={staggerContainer}
+            <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{once: true}}
+              variants={staggerContainer}
               className="space-y-6"
             >
-              <motion.div variants={fadeInUp} className="flex items-center gap-6 p-6 bg-blue-50 rounded-3xl border-2 border-blue-100 hover:scale-105 transition-transform cursor-default">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm text-blue-600 shrink-0">
-                  <Sparkles className="w-8 h-8" />
+              <motion.div
+                variants={fadeInUp}
+                className="flex cursor-default items-center gap-6 rounded-3xl border-2 border-blue-100 bg-blue-50 p-6 transition-transform hover:scale-105"
+              >
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
+                  <Sparkles className="h-8 w-8" />
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-slate-900">Gemini</h4>
-                  <p className="text-slate-600">住在 Google Workspace 裡的大腦，幫你寫信、看圖、想點子。</p>
+                  <p className="text-slate-600">適合寫信、整理想法、改寫內容、圖片理解與工作指令協作。</p>
                 </div>
               </motion.div>
 
-              <motion.div variants={fadeInUp} className="flex items-center gap-6 p-6 bg-orange-50 rounded-3xl border-2 border-orange-100 hover:scale-105 transition-transform cursor-default">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm text-orange-600 shrink-0">
-                  <FileText className="w-8 h-8" />
+              <motion.div
+                variants={fadeInUp}
+                className="flex cursor-default items-center gap-6 rounded-3xl border-2 border-orange-100 bg-orange-50 p-6 transition-transform hover:scale-105"
+              >
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-orange-600 shadow-sm">
+                  <FileText className="h-8 w-8" />
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-slate-900">NotebookLM</h4>
-                  <p className="text-slate-600">不會胡說八道的專屬研究員，專門幫你讀完那堆看不完的 PDF。</p>
+                  <p className="text-slate-600">適合讀文件、彙整來源、做摘要與回答「根據資料」的問題。</p>
                 </div>
               </motion.div>
             </motion.div>
@@ -238,172 +325,141 @@ export default function App() {
         </div>
       </section>
 
-      {/* Part 2: Practical Scenarios */}
-      <section id="scenarios" className="py-24 bg-slate-50">
+      <section id="scenarios" className="bg-slate-50 py-24">
         <div className="container mx-auto px-6">
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={{once: true}}
             variants={fadeInUp}
-            className="text-center mb-16"
+            className="mb-16 text-center"
           >
-            <div className="inline-block p-3 bg-purple-100 rounded-2xl mb-4 -rotate-3">
-              <Briefcase className="w-8 h-8 text-purple-600" />
+            <div className="mb-4 inline-block -rotate-3 rounded-2xl bg-purple-100 p-3">
+              <Briefcase className="h-8 w-8 text-purple-600" />
             </div>
-            <h2 className="text-4xl font-black text-slate-900 mb-4">第二部分：實戰演練</h2>
-            <p className="text-xl text-slate-500 font-bold">專治職場疑難雜症，直接解決手邊工作。</p>
+            <h2 className="mb-4 text-4xl font-black text-slate-900">第二部分：實戰演練</h2>
+            <p className="text-xl font-bold text-slate-500">專治職場疑難雜症，直接解決手邊工作。</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Scenario 1 */}
-            <motion.div 
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border-2 border-slate-100 flex flex-col h-full"
-            >
-              <div className="w-full h-48 bg-orange-100 rounded-3xl mb-8 flex items-center justify-center relative overflow-hidden group">
-                <Headphones className="w-20 h-20 text-orange-400 transform group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute bottom-4 right-4 bg-white px-3 py-1 rounded-full text-xs font-bold text-orange-600 shadow-sm">NotebookLM</div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">資料地獄救星</h3>
-              <p className="text-slate-500 mb-6 flex-grow">老闆丟來 100 頁 PDF 或一小時演講影片，要你馬上交摘要？</p>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 解法：</h4>
-                <p className="text-sm text-slate-600 mb-2">🎧 <strong>用聽的做功課：</strong>一鍵生成「雙人對談 Podcast」，通勤也能吸收。</p>
-                <p className="text-sm text-slate-600">🧠 <strong>跨文件大腦：</strong>匯入多份報告，直接問「下一季風險是什麼？」。</p>
-              </div>
-            </motion.div>
-
-            {/* Scenario 2 */}
-            <motion.div 
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border-2 border-slate-100 flex flex-col h-full"
-            >
-              <div className="w-full h-48 bg-blue-100 rounded-3xl mb-8 flex items-center justify-center relative overflow-hidden group">
-                <PenTool className="w-20 h-20 text-blue-400 transform group-hover:rotate-12 transition-transform duration-500" />
-                <div className="absolute bottom-4 right-4 bg-white px-3 py-1 rounded-full text-xs font-bold text-blue-600 shadow-sm">Gemini Canvas</div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">寫作障礙救星</h3>
-              <p className="text-slate-500 mb-6 flex-grow">要寫委婉拒絕信，或把零散筆記變週報，卡在電腦前半小時？</p>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 解法：</h4>
-                <p className="text-sm text-slate-600 mb-2">✍️ <strong>Canvas 協作：</strong>左邊下指令，右邊即時預覽。</p>
-                <p className="text-sm text-slate-600">✨ <strong>潤飾魔法：</strong>反白草稿，要求「語氣更委婉專業」。</p>
-              </div>
-            </motion.div>
-
-            {/* Scenario 3 */}
-            <motion.div 
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border-2 border-slate-100 flex flex-col h-full"
-            >
-              <div className="w-full h-48 bg-green-100 rounded-3xl mb-8 flex items-center justify-center relative overflow-hidden group">
-                <Bot className="w-20 h-20 text-green-400 transform group-hover:translate-y-2 transition-transform duration-500" />
-                <div className="absolute bottom-4 right-4 bg-white px-3 py-1 rounded-full text-xs font-bold text-green-600 shadow-sm">Gemini Gems</div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">繁瑣庶務救星</h3>
-              <p className="text-slate-500 mb-6 flex-grow">每次開完會都要重整格式？有一堆手寫報表要打成 Excel？</p>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 解法：</h4>
-                <p className="text-sm text-slate-600 mb-2">🤖 <strong>專屬秘書 Gem：</strong>設定永遠把逐字稿轉成「結論+待辦」。</p>
-                <p className="text-sm text-slate-600">📸 <strong>圖片轉表格：</strong>拍下白板數據，秒變可編輯 Excel。</p>
-              </div>
-            </motion.div>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            {scenarioCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <motion.div
+                  key={card.title}
+                  whileHover={{y: -10}}
+                  className="flex h-full flex-col rounded-[2.5rem] border-2 border-slate-100 bg-white p-8 shadow-xl shadow-slate-200/50"
+                >
+                  <div className={`relative mb-8 flex h-48 w-full items-center justify-center overflow-hidden rounded-3xl ${card.panelClassName}`}>
+                    <Icon className={`h-20 w-20 ${card.iconClassName}`} />
+                    <div className={`absolute bottom-4 right-4 rounded-full bg-white px-3 py-1 text-xs font-bold shadow-sm ${card.badgeClassName}`}>
+                      {card.badge}
+                    </div>
+                  </div>
+                  <h3 className="mb-4 text-2xl font-bold text-slate-900">{card.title}</h3>
+                  <p className="mb-6 flex-grow text-slate-500">{card.description}</p>
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <h4 className="mb-2 flex items-center gap-2 font-bold text-slate-800">
+                      <Check className="h-4 w-4 text-green-500" />
+                      可以這樣用
+                    </h4>
+                    {card.points.map((point) => (
+                      <p key={point} className="mb-2 text-sm text-slate-600 last:mb-0">
+                        {point}
+                      </p>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Part 3: Communication */}
-      <section id="communication" className="py-24 bg-white border-t-2 border-slate-100">
+      <section id="communication" className="border-t-2 border-slate-100 bg-white py-24">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row gap-16 items-center">
-            <motion.div 
+          <div className="flex flex-col items-center gap-16 md:flex-row">
+            <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{once: true}}
               variants={fadeInUp}
               className="md:w-1/2"
             >
-              <div className="inline-block p-3 bg-pink-100 rounded-2xl mb-4 rotate-3">
-                <MessageSquare className="w-8 h-8 text-pink-600" />
+              <div className="mb-4 inline-block rotate-3 rounded-2xl bg-pink-100 p-3">
+                <MessageSquare className="h-8 w-8 text-pink-600" />
               </div>
-              <h2 className="text-4xl font-black text-slate-900 mb-6">第三部分：溝通心法</h2>
-              <p className="text-xl text-slate-500 font-bold mb-8">為什麼別人問 AI 都有好答案，我問出來都是廢話？</p>
-              
-              <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl relative">
-                <div className="absolute -top-4 -right-4 bg-yellow-400 text-slate-900 px-4 py-2 rounded-xl font-black transform rotate-6 shadow-lg border-2 border-slate-900">
-                  黃金公式
+              <h2 className="mb-6 text-4xl font-black text-slate-900">第三部分：溝通心法</h2>
+              <p className="mb-8 text-xl font-bold text-slate-500">同樣是問 AI，差別常常出在你怎麼下指令。</p>
+
+              <div className="relative rounded-[2rem] bg-slate-900 p-8 text-white shadow-2xl">
+                <div className="absolute -right-4 -top-4 rotate-6 rounded-xl border-2 border-slate-900 bg-yellow-400 px-4 py-2 font-black text-slate-900 shadow-lg">
+                  立刻可用
                 </div>
-                <h3 className="text-2xl font-bold mb-6 text-yellow-400">四模塊框架 (4-Module Framework)</h3>
-                <ul className="space-y-4 font-mono text-sm md:text-base">
+                <h3 className="mb-6 text-2xl font-bold text-yellow-400">4 模組提問框架</h3>
+                <ul className="space-y-4 text-sm md:text-base">
                   <li className="flex items-center gap-3">
-                    <span className="bg-white/10 px-2 py-1 rounded text-pink-300">Context</span>
-                    <span>你是誰？(例：資深產品經理)</span>
+                    <span className="rounded bg-white/10 px-2 py-1 text-pink-300">Context</span>
+                    <span>你是誰，現在在處理什麼情境。</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="bg-white/10 px-2 py-1 rounded text-blue-300">Specifics</span>
-                    <span>給素材 (例：受眾 25 歲上班族)</span>
+                    <span className="rounded bg-white/10 px-2 py-1 text-blue-300">Specifics</span>
+                    <span>提供素材、限制條件、對象與語氣需求。</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="bg-white/10 px-2 py-1 rounded text-green-300">Goal</span>
-                    <span>做什麼？(例：寫 3 個 IG 標題)</span>
+                    <span className="rounded bg-white/10 px-2 py-1 text-green-300">Goal</span>
+                    <span>明確說出想完成的成果。</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="bg-white/10 px-2 py-1 rounded text-orange-300">Format</span>
-                    <span>長怎樣？(例：用表格呈現)</span>
+                    <span className="rounded bg-white/10 px-2 py-1 text-orange-300">Format</span>
+                    <span>指定條列、表格、段落或字數上限。</span>
                   </li>
                 </ul>
               </div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{once: true}}
               variants={staggerContainer}
-              className="md:w-1/2 space-y-6"
+              className="space-y-6 md:w-1/2"
             >
-              <motion.div variants={fadeInUp} className="p-6 bg-slate-50 rounded-3xl border-2 border-slate-100">
-                <h4 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-700">#</div>
-                  Markdown 指令術
-                </h4>
-                <p className="text-slate-600">像工程師一樣溝通！學會用簡單符號 (#, -, **) 指揮 AI，讓輸出的報告層次分明，直接複製貼上就能用。</p>
-              </motion.div>
-
-              <motion.div variants={fadeInUp} className="p-6 bg-slate-50 rounded-3xl border-2 border-slate-100">
-                <h4 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-700">💾</div>
-                  建立 AI 資產
-                </h4>
-                <p className="text-slate-600">不要每次從頭問。把試出來的好指令存成 Notion 筆記或 Gems，累積屬於你的職場外掛庫。</p>
-              </motion.div>
+              {communicationCards.map((card) => (
+                <motion.div
+                  key={card.title}
+                  variants={fadeInUp}
+                  className="rounded-3xl border-2 border-slate-100 bg-slate-50 p-6"
+                >
+                  <h4 className="mb-2 flex items-center gap-2 text-lg font-bold text-slate-900">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-slate-700">
+                      {card.marker}
+                    </div>
+                    {card.title}
+                  </h4>
+                  <p className="text-slate-600">{card.description}</p>
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-20 bg-slate-900 text-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-        <div className="container mx-auto px-6 text-center relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-          >
-            <h2 className="text-3xl md:text-4xl font-black mb-6">準備好加入 AI 實戰行列了嗎？</h2>
-            <p className="text-slate-400 mb-10 max-w-xl mx-auto leading-relaxed text-lg">
-              本課程適合：數位轉型中的企業員工、尋求效率提升的自由工作者、以及對 AI 應用充滿好奇的你。
+      <footer className="relative overflow-hidden bg-slate-900 py-20 text-white">
+        <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+        <div className="container relative z-10 mx-auto px-6 text-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{once: true}} variants={fadeInUp}>
+            <h2 className="mb-6 text-3xl font-black md:text-4xl">準備好把 AI 變成工作流程的一部分了嗎？</h2>
+            <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-slate-400">
+              從摘要、寫作、整理到固定流程自動化，先挑一個最痛的工作場景開始導入。
             </p>
-            
+
             <div className="flex flex-col items-center justify-center gap-6">
               <LineButton className="px-12 py-4 text-lg shadow-[0px_0px_20px_rgba(6,199,85,0.4)] hover:shadow-[0px_0px_30px_rgba(6,199,85,0.6)]" />
-              <p className="text-slate-500 text-sm">點擊按鈕，直接與官方帳號對話</p>
+              <p className="text-sm text-slate-500">點擊按鈕，直接與官方帳號對話</p>
             </div>
-            
-            <div className="mt-24 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-center items-center text-slate-500 text-xs gap-4">
+
+            <div className="mt-24 flex flex-col items-center justify-center gap-4 border-t border-white/10 pt-10 text-xs text-slate-500 md:flex-row">
               <div>© 2026 AI 職場外掛：Gemini 與 NotebookLM 全攻略</div>
             </div>
           </motion.div>
@@ -412,4 +468,3 @@ export default function App() {
     </div>
   );
 }
-
