@@ -4,6 +4,7 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig({
+  base: '/91up-web/',
   plugins: [react(), tailwindcss()],
   resolve: {
       alias: {
